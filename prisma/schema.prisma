@@ -8,32 +8,41 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum Role {
+  a // Admin
+  s // Supir
+  u // User
+}
+
 model User {
-  id                    String    @id @default(uuid()) @db.Uuid
-  name                  String                                   // udin 
-  email                 String    @unique                        // udin@gmail.com
-  password              String                                   // udinPetot
-  role                  String    @default("u") @db.VarChar(1)   // 'u'
-  nomorKendaraan        String    @default(" ")                  // ' '
+  id       String    @id @default(uuid()) @db.Uuid
+  name     String                                    // udin 
+  email    String    @unique                         // udin@gmail.com
+  password String                                    // udinPetot
+  role     Role      @default(u)                     // 'u'
+  angkot   Angkot?   @relation("UserAngkot")
 }
 
 model Angkot {
-  id                  String      @id @default(uuid()) @db.Uuid
-  latitude            Float
-  longitude           Float
-  jumlahKursi         Int                                                                // 12
-  activeNonActive     Boolean     @default(true)                                         // true
-  warna               String[]                                                           // ['hijau' , 'kuning']
-  currentTrayekId     String?     @db.Uuid                                               // trayek.id
-  currentTrayek       Trayek?     @relation(fields: [currentTrayekId], references: [id]) // Trayek aktif
+  id              String      @id @default(uuid()) @db.Uuid
+  latitude        Float
+  longitude       Float
+  jumlahKursi     Int                                                                // 12
+  activeNonActive Boolean     @default(true)                                         // true
+  warna           String[]                                                           // ['hijau' , 'kuning']
+  currentTrayekId String?     @db.Uuid                                               // trayek.id
+  currentTrayek   Trayek?     @relation(fields: [currentTrayekId], references: [id]) // Trayek aktif
+  nomorKendaraan  String      @unique                                                // "XY XYXY XYX"
+  supirId         String?     @unique @db.Uuid                                               // Ubah tipe data menjadi Uuid
+  supir           User?       @relation("UserAngkot", fields: [supirId], references: [id])
 }
 
 model Trayek {
   id                  String      @id @default(uuid()) @db.Uuid
-  namaTrayek          String                                    // Contoh: "Cicaheum - Kebon Kelapa"
-  lokasiAwal          String
-  lokasiAkhir         String
-  rute                Json                                      // Rute perjalanan, misalnya koordinat GPS
+  namaTrayek          String                                    // "Cicaheum - Kebon Kelapa"
+  lokasiAwal          String                                    // "Kebon Kelapa"
+  lokasiAkhir         String                                    // "Cicaheum"
+  rute                Json                                      // { namaJalan : Cikutra }
   angkots             Angkot[]                                  // Angkot-angkot yang dapat menggunakan trayek ini
 }
 
