@@ -41,6 +41,23 @@ class AngkotController {
             return res.status(500).send("Internal Server Error")
         }
     }
+
+    static async getAngkotById(req, res) {
+        const { id } = req.params;
+        try {
+            const angkot = await prisma.angkot.findUnique({
+                where : {
+                    id : id,
+                },include : {
+                    currentTrayek : true
+                }
+            })
+            return res.status(200).send(angkot);
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
 }
 
 export default AngkotController;
