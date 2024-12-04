@@ -5,7 +5,7 @@ import  { authenticateToken } from '../middleware/authMiddleware.js'
 const angkotRoute = express.Router();
 
 angkotRoute.get('/angkot', AngkotController.getAngkots);
-// router.post('/angkot', AuthController.login);
+angkotRoute.post('/angkot', AngkotController.createAngkot);
 // router.post('/angkot', authenticateToken, AuthController.logout);
 
 export default angkotRoute;
