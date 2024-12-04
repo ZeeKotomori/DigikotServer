@@ -7,5 +7,6 @@ const angkotRoute = express.Router();
 angkotRoute.get('/angkot', AngkotController.getAngkots);
 angkotRoute.post('/angkot', AngkotController.createAngkot);
 angkotRoute.get('/angkot/:id', AngkotController.getAngkotById);
+angkotRoute.patch('/angkot/:id', AngkotController.updateAngkot);
 
 export default angkotRoute;
