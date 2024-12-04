@@ -1,0 +1,48 @@
+# Node modules
+node_modules/
+
+# Prisma caches and engines
+.prisma/
+.cache/
+prisma/engines/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.log
+
+# Build and dist directories
+dist/
+build/
+
+# Prisma migrations
+prisma/migrations/
+
+# Test coverage reports
+coverage/
+
+# Debug files
+debug.log
