@@ -53,6 +53,9 @@ class AngkotController {
                     currentTrayek : true
                 }
             })
+
+            if (!angkot) return res.status(404).send("data not found");
+            
             return res.status(200).send(angkot);
         } catch (error) {
             console.log(error);
@@ -78,9 +81,26 @@ class AngkotController {
                 nomorKendaraan
             },
         });
-        return res.status(200).json(angkot);
+        return res.status(200).send(angkot);
         } catch (error) {
-        return res.status(500).json({ error: 'Failed to update angkot' });
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
+
+    static async deleteAngkot(req, res) {
+        const { id } = req.params;
+
+        try {
+            await prisma.angkot.delete({
+                where : {
+                    id : id 
+                }
+            })
+            return res.status(200).send({ msg : "Angkot Has Been Deleted" });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
         }
     }
 }
