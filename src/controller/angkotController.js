@@ -48,7 +48,8 @@ class AngkotController {
             const angkot = await prisma.angkot.findUnique({
                 where : {
                     id : id,
-                },include : {
+                },
+                include : {
                     currentTrayek : true
                 }
             })
@@ -56,6 +57,30 @@ class AngkotController {
         } catch (error) {
             console.log(error);
             return res.status(500).send("Internal Server Error");
+        }
+    }
+
+    static async updateAngkot(req , res) {
+        const { id } = req.params;
+        const { latitude, longitude, jumlahKursi, activeNonActive, warna, currentTrayekId, nomorKendaraan } = req.body;
+        try {
+        const angkot = await prisma.angkot.update({
+            where: { 
+                id : id 
+            },
+            data: {
+                latitude,
+                longitude,
+                jumlahKursi,
+                activeNonActive,
+                warna,
+                currentTrayekId,
+                nomorKendaraan
+            },
+        });
+        return res.status(200).json(angkot);
+        } catch (error) {
+        return res.status(500).json({ error: 'Failed to update angkot' });
         }
     }
 }
