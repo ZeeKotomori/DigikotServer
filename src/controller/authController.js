@@ -30,6 +30,7 @@ class AuthController {
                 data: {
                     name,
                     email,
+                    username,
                     password: HashPassword,
                 },
             });
