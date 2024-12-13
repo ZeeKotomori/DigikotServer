@@ -38,6 +38,20 @@ class UserController {
         }
     }
 
+    static async getUsers(req, res) {
+        try {
+            const users = await prisma.user.findMany({
+                include : {
+                    angkot : true
+                }
+            });
+            return res.status(200).send({users});
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
+
     static async driverChooseAngkot(req, res) {
         const { id } = req.params;
         const { idAngkot } = req.body;
@@ -80,7 +94,7 @@ class UserController {
             return res.status(200).send({msg : "Driver Has Been Assigned to Angkot", updateAngkot});
         } catch (error) {
             console.log(error);
-            return res.status(500).send({msg : "Internal Server Error"});
+            return res.status(500).send("Internal Server Error");
         }
     }
 }
