@@ -6,6 +6,6 @@ import { checkUserRole } from '../middleware/roleUserCheckMiddleware.js'
 const userRoutes = express.Router();
 
 userRoutes.post('/pilihAngkot/:id', checkUserRole(['s']), UserController.driverChooseAngkot);
-userRoutes.post('/userUpdate/:id', UserController.userUpdate);
+userRoutes.patch('/userUpdate/:id', UserController.userUpdate);
 
 export default userRoutes;
