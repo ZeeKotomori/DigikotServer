@@ -9,7 +9,8 @@
     "migrate": "prisma migrate dev",
     "studio": "prisma studio",
     "migrate-and-studio": "npm run migrate && npm run studio",
-    "deleteDb": "node --loader ts-node/esm prisma/deleteDb.ts"
+    "deleteDb": "node --loader ts-node/esm prisma/deleteDb.ts",
+    "seed": "node --loader ts-node/esm prisma/seed.ts"
   },
   "prisma": {
     "seed": "node --loader ts-node/esm prisma/seed.ts"
