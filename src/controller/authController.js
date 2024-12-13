@@ -8,13 +8,14 @@ let tokenBlacklist = new Set();
 
 class AuthController {
     static async register(req, res) {
-        const { name, email, password } = req.body;
+        const { name, email, username, password } = req.body;
 
         console.log(req.body);
         try {
             const findExistsUser = await prisma.user.findUnique(
                 {
                     where : {
+                        username : username,
                         email : email
                     }
                 });
