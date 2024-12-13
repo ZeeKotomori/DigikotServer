@@ -67,7 +67,7 @@ class AngkotController {
         const { id } = req.params;
         const { latitude, longitude, jumlahKursi, activeNonActive, warna, currentTrayekId, nomorKendaraan } = req.body;
         try {
-        const angkot = await prisma.angkot.update({
+            const angkot = await prisma.angkot.update({
             where: { 
                 id : id 
             },
