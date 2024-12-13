@@ -22,7 +22,7 @@ class AuthController {
     
             if (findExistsUser) return res.status(409).send({ msg : "The Email Has Been Registered" });
 
-            if (!name || !email || !password) return res.status(400).json({ error: 'Name, email, and password are required.' });
+            if (!name || !email || !password || !username) return res.status(400).json({ error: 'name, username,email, and password are required.' });
 
             const HashPassword = await bcrypt.hash(password, 10);
             
@@ -33,9 +33,6 @@ class AuthController {
                     password: HashPassword,
                 },
             });
-
-            console.log(newUser);
-            
             res.status(201).send({ msg: 'User Has Been Register', user : newUser });
         } catch (error) {
             console.log('Error registering user : ', error);
