@@ -70,6 +70,33 @@ class UserController {
         }
     }
 
+    static async removeDriverFromChooseAngkot(req, res) {
+        const { id } = req.params;
+        const { idAngkot } = req.body;
+
+        try {
+            
+            const angkot = await prisma.angkot.findUnique({
+                where: { id: idAngkot },
+            });
+    
+            if (!angkot) return res.status(404).send({ msg: "Angkot not found" });
+
+            if(angkot.supirId !== id) return res.status(400).send({ msg : "This driver is not assigned to the specified angkot" })
+
+            const updatedAngkot = await prisma.angkot.update({
+                where: { id: idAngkot },
+                data: { supirId: null },
+            });
+
+            return res.status(200).send({ msg: "Driver has been successfully removed from the angkot", data: updatedAngkot });
+
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
+
     static async driverChooseAngkot(req, res) {
         const { id } = req.params;
         const { idAngkot } = req.body;
