@@ -9,5 +9,6 @@ userRoutes.post('/pilihAngkot/:id', checkUserRole(['s']), UserController.driverC
 userRoutes.patch('/update/:id', UserController.userUpdate);
 userRoutes.get('/', UserController.getUsers);
 userRoutes.get('/:id', UserController.getUserById);
+userRoutes.patch('/hapusAngkot/:id', checkUserRole(['s']), UserController.removeDriverFromChooseAngkot);
 
 export default userRoutes;
