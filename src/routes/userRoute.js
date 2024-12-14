@@ -8,5 +8,6 @@ const userRoutes = express.Router();
 userRoutes.post('/pilihAngkot/:id', checkUserRole(['s']), UserController.driverChooseAngkot);
 userRoutes.patch('/update/:id', UserController.userUpdate);
 userRoutes.get('/', UserController.getUsers);
+userRoutes.get('/:id', UserController.getUserById);
 
 export default userRoutes;
