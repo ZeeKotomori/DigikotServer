@@ -10,5 +10,6 @@ userRoutes.patch('/update/:id', UserController.userUpdate);
 userRoutes.get('/', UserController.getUsers);
 userRoutes.get('/:id', UserController.getUserById);
 userRoutes.patch('/hapusAngkot/:id', checkUserRole(['s']), UserController.removeDriverFromChooseAngkot);
+userRoutes.delete('/:id', UserController.deleteUser);
 
 export default userRoutes;
