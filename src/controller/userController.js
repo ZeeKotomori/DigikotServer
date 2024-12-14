@@ -52,6 +52,24 @@ class UserController {
         }
     }
 
+    static async getUserById(req, res) {
+        const { id } = req.params
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    id : id
+                },
+                include : {
+                    angkot : true
+                }
+            });
+            return res.status(200).send({ user });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
+
     static async driverChooseAngkot(req, res) {
         const { id } = req.params;
         const { idAngkot } = req.body;
