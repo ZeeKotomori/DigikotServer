@@ -54,6 +54,9 @@ class UserController {
 
     static async getUserById(req, res) {
         const { id } = req.params
+
+        if (!id) return res.status(400).send({ msg : "id must been filled" });
+        
         try {
             const user = await prisma.user.findUnique({
                 where: {
@@ -75,6 +78,7 @@ class UserController {
         const { idAngkot } = req.body;
 
         try {
+            if (!idAngkot) return res.status(400).send({ msg : "Angkot Must Been Choose" });
             
             const angkot = await prisma.angkot.findUnique({
                 where: { id: idAngkot },
@@ -102,6 +106,8 @@ class UserController {
         const { idAngkot } = req.body;
 
         try {
+            if (!idAngkot) return res.status(400).send({ msg : "Angkot Must Been Choose" });
+            
             const angkot = await prisma.angkot.findUnique({
                 where: { id: idAngkot },
                 select: { supirId: true },
@@ -137,6 +143,37 @@ class UserController {
             });
 
             return res.status(200).send({msg : "Driver Has Been Assigned to Angkot", updateAngkot});
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
+
+    static async deleteUser(req, res) {
+        const { id } = req.params
+        
+
+        try {
+            const user = await prisma.user.findUnique({
+                where : {
+                    id : id
+                }
+            });
+
+            if (!user) {
+                return res.status(404).send({ msg: "User not found" });
+            }
+
+            await prisma.angkot.updateMany({
+                where: { supirId: id },
+                data: { supirId: null },
+            });
+
+            await prisma.user.delete({
+                where: { id },
+            });
+
+            return res.status(200).send({ msg: "User and related assignments have been successfully deleted" });
         } catch (error) {
             console.log(error);
             return res.status(500).send("Internal Server Error");
