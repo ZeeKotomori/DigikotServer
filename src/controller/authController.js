@@ -3,14 +3,13 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const { JWT_SECRET, JWT_EXPIRES_IN } = process.env;
+const { JWT_SECRET, JWT_EXPIRES_IN, JWT_EXPIRES_REFRESH_IN } = process.env;
 let tokenBlacklist = new Set();
 
 class AuthController {
     static async register(req, res) {
         const { name, email, username, password } = req.body;
 
-        console.log(req.body);
         try {
             const findExistsUser = await prisma.user.findUnique(
                 {
@@ -50,16 +49,28 @@ class AuthController {
                         email : email
                     }
                 });
-
-            if (!user) res.status(401).send({ msg : "user not found" });
+            if (!user) return res.status(401).send({ msg : "user not found" });
 
             const isPasswordValid = await bcrypt.compare( password, user.password );
-
             if(!isPasswordValid) return res.status(401).send({ msg : "Invalid Password" });
 
-            const token = jwt.sign({ userId: user.id, userName : user.name, userEmail : user.email }, JWT_SECRET, { expiresIn : JWT_EXPIRES_IN });
-            return res.status(200).send({ msg : "Login Successful, here's the token", token });
+            const refreshToken = jwt.sign({ username : user.name, email : user.email }, JWT_EXPIRES_REFRESH_IN, { expiresIn : JWT_EXPIRES_REFRESH_IN });
+            const token = jwt.sign({ username : user.name, email : user.email }, JWT_SECRET, { expiresIn : JWT_EXPIRES_IN });
 
+            await prisma.refreshToken.create({
+                data: {
+                    token: refreshToken,
+                    userId: user.id,
+                    expiresAt: new Date(Date.now() + parseInt(JWT_EXPIRES_REFRESH_IN) * 1000)
+                }
+            });
+
+            res.cookie('refreshToken', refreshToken, {
+                httpOnly: true,
+                maxAge: 7 * 24 * 60 * 60 * 1000
+            });
+
+            return res.status(200).send({ msg : "Login Successful, here's the token", token});
         } catch (error) {
             console.log(error.message);
             return res.status(500).send({ msg : "Internal Server Error" })
@@ -67,12 +78,29 @@ class AuthController {
     }
 
     static async logout(req, res) {
-        const token = req.headers['authorization']?.split(' ')[1];
+        const { refreshToken } = req.cookies;
+        if(!refreshToken) return res.status(400).send({ msg : "Refresh Token Not Found" });
 
-        if (!token) return res.status(400).send({ msg : 'Token not provided' });
+        try {
+            const storedRefreshToken = await prisma.refreshToken.findUnique({
+                where: {
+                    token: refreshToken
+                }
+            });
+            if(!storedRefreshToken) return res.status(401).send({ msg : "Invalid Refresh Token" });
 
-        tokenBlacklist.add(token);
-        return res.status(200).send({ msg : "Successfully logged out" });
+            await prisma.refreshToken.delete({
+                where: {
+                    id: storedRefreshToken.id
+                }
+            });
+            res.clearCookie('refreshToken');
+
+            return res.status(200).send({ msg : "Logout Successful" });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send({ msg : "Internal Server Error" });
+        }
     }
 }
 
