@@ -50,19 +50,22 @@ class TrayekController {
     }
 
     static async createTrayek(req, res){
-        const { namaTraykes, lokasiAwal, lokasiAkhir, rute } = req.body;
-        if(!namaTraykes || !lokasiAwal || !lokasiAkhir || !rute) return res.status(400).send({ msg: "All fields are required" });
+        const { namaTrayek, lokasiAwal, lokasiAkhir, rute } = req.body;
+
+        console.log(req.body);
+
+        if(!namaTrayek || !lokasiAwal || !lokasiAkhir || !rute) return res.status(400).send({ msg: "All fields are required" });
 
         try {
             const trayekExist = await prisma.trayek.findFirst({
-                where: { namaTrayek: namaTraykes },
+                where: { namaTrayek: namaTrayek },
             });
 
-            if(trayekExist) return res.status(400).send({ msg: "Trayek already exist" });
+            if(trayekExist) return res.status(400).send({ msg: "Trayek already exist", id: trayekExist.id });
 
             const trayek = await prisma.trayek.create({
                 data: {
-                    namaTrayek: namaTraykes,
+                    namaTrayek: namaTrayek,
                     lokasiAwal,
                     lokasiAkhir,
                     rute: {
@@ -98,6 +101,10 @@ class TrayekController {
         const { id } = req.params;
         const { namaTrayek, lokasiAwal, lokasiAkhir, rute } = req.body;
 
+        console.log(req.body);
+
+        if (!namaTrayek || !lokasiAwal || !lokasiAkhir || !rute) return res.status(400).send({ msg: "All fields are required" });
+
         try {
             const existingTrayek = await prisma.trayek.findUnique({ where: { id } });
             if (!existingTrayek) return res.status(404).send({ msg: "Trayek not found" });
@@ -113,6 +120,22 @@ class TrayekController {
             });
             
             return res.status(200).send({ msg: "Trayek updated", data: updatedTrayek });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).send("Internal Server Error");
+        }
+    }
+
+    static async deleteTrayek(req, res){
+        const { id } = req.params;
+
+        try {
+            const existingTrayek = await prisma.trayek.findUnique({ where: { id } });
+            if (!existingTrayek) return res.status(404).send({ msg: "Trayek not found" });
+
+            await prisma.trayek.delete({ where: { id } });
+
+            return res.status(200).send({ msg: "Trayek deleted" });
         } catch (error) {
             console.log(error);
             return res.status(500).send("Internal Server Error");
