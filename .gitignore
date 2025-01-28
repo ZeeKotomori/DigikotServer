@@ -46,3 +46,6 @@ coverage/
 
 # Debug files
 debug.log
+
+# Chore
+package-lock.json

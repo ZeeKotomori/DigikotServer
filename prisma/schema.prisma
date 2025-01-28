@@ -9,39 +9,67 @@ generator client {
 }
 
 model User {
-  id                    String    @id @default(uuid()) @db.Uuid
-  name                  String                                   // udin 
-  email                 String    @unique                        // udin@gmail.com
-  password              String                                   // udinPetot
-  role                  String    @default("u") @db.VarChar(1)   // 'u'
-  nomorKendaraan        String    @default(" ")                  // ' '
+  id            String         @id @default(uuid()) @db.Uuid
+  username      String         @unique
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(u)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
+  angkot        Angkot?        @relation("UserAngkot")
+  refreshTokens RefreshToken[]
 }
 
 model Angkot {
-  id                  String      @id @default(uuid()) @db.Uuid
-  latitude            Float
-  longitude           Float
-  jumlahKursi         Int                                                                // 12
-  activeNonActive     Boolean     @default(true)                                         // true
-  warna               String[]                                                           // ['hijau' , 'kuning']
-  currentTrayekId     String?     @db.Uuid                                               // trayek.id
-  currentTrayek       Trayek?     @relation(fields: [currentTrayekId], references: [id]) // Trayek aktif
+  id              String   @id @default(uuid()) @db.Uuid
+  latitude        Float
+  longitude       Float
+  jumlahKursi     Int
+  activeNonActive Boolean  @default(true)
+  warna           String[]
+  currentTrayekId String?  @db.Uuid
+  nomorKendaraan  String   @unique
+  supirId         String?  @unique @db.Uuid
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
+  currentTrayek   Trayek?  @relation(fields: [currentTrayekId], references: [id])
+  supir           User?    @relation("UserAngkot", fields: [supirId], references: [id])
 }
 
 model Trayek {
-  id                  String      @id @default(uuid()) @db.Uuid
-  namaTrayek          String                                    // Contoh: "Cicaheum - Kebon Kelapa"
-  lokasiAwal          String
-  lokasiAkhir         String
-  rute                Json                                      // Rute perjalanan, misalnya koordinat GPS
-  angkots             Angkot[]                                  // Angkot-angkot yang dapat menggunakan trayek ini
+  id          String   @id @default(uuid()) @db.Uuid
+  namaTrayek  String   @unique
+  lokasiAwal  String
+  lokasiAkhir String
+  rute        Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+  angkots     Angkot[]
 }
 
-
 model RiwayatPerjalanan {
-  id                    String                @id @default(uuid())  @db.Uuid
-  userId                String                   
-  tanggal               DateTime              @default(now())
-  estimasiTarif         Float                                                 // "Rp. 12.000.00"
-  userTrayeks           String                                                // "Cicaheum - Kebon Kelapa"
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String
+  tanggal       DateTime @default(now())
+  estimasiTarif Float
+  userTrayeks   String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Role {
+  a
+  s
+  u
 }
