@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import redis from "../config/redis.js";
 
 const prisma = new PrismaClient();
 
@@ -20,7 +21,6 @@ class AngkotController {
 
     static async createAngkot(req, res) {
         const { latitude, longitude, jumlahKursi, activeNonActive, warna, currentTrayekId, nomorKendaraan } = req.body;
-        // console.log(req.body);
         
         if ([latitude, longitude, jumlahKursi, activeNonActive, warna, currentTrayekId, nomorKendaraan].some(value => value === null)) return res.status(400).send("Bad Request");
         try {
@@ -103,6 +103,52 @@ class AngkotController {
             return res.status(500).send("Internal Server Error");
         }
     }
+
+    static async getAngkotStatus(req, res) {
+        const { id } = req.params;
+        const redisKey = `angkot:${id}`;
+    
+        try {
+            const data = await redis.hgetall(redisKey);
+            if (!data) return res.status(404).json({ msg: "Angkot tidak ditemukan" });
+    
+            return res.json({ active: data.active === "true" });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ msg: "Internal Server Error" });
+        }
+    }
+
+    static async searchAngkot(req, res) {
+        const { trayekId, active } = req.query;
+    
+        try {
+            let whereClause = {};
+    
+            if (trayekId) {
+                whereClause.id = String(trayekId);
+            }
+    
+            if (active !== undefined) {
+                whereClause.activeNonActive = active.toLowerCase() === "true";
+            }
+    
+            const angkots = await prisma.angkot.findMany({ 
+                where: { 
+                    currentTrayekId: whereClause.id,
+                    activeNonActive: whereClause.activeNonActive
+                },
+            });
+            
+            console.log(angkots);
+
+            return res.status(200).send({ msg : "angkot found", angkots });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({ msg: "Internal Server Error" });
+        }
+    }
+    
 }
 
 export default AngkotController;
